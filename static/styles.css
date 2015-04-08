@@ -1,0 +1,20 @@
+
+a {text-decoration: none; color:#CC0000; font-size: 1em;}
+h2 a {color: inherit; font-size:  inherit;}
+
+div.category, div.item 
+	color:#CC0000;
+}
+
+span.category {
+	color: gray;
+}
+
+input, select {margin-bottom: 3px;}
+
+.header         {left:50%; text-align: center;}
+.name {width:50%;display: inline-block; float: left;}
+.description {}
+
+.flash          { background: #cee5F5; }
+

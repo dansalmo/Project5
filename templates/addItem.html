@@ -1,0 +1,20 @@
+{% include 'header.html' %}
+<div class="container">
+	<h2> Add New Item</h2>
+	<form id="addItem" action='{{url_for("addItem")}}' method = 'POST'>
+		<input required type = 'text' size='30' name = 'name' placeholder = 'name'> </br>
+		<input type = 'text' size='60' name = 'description' placeholder = 'description'> </br>
+		<input type = 'text' size='10' name = 'image' placeholder = 'image'> </br>
+		<select form="addItem" name="category" required>
+		  <option value="">Category</option>
+		  {% for category in categories %}
+		  	<option value="{{category}}">{{category}}</option>
+		  {% endfor %}
+		</select>
+		<br />
+		<input type='submit' value='Add'> <a href= '{{url_for("showCatalog")}}'>Cancel</a>
+	</form>
+</div>
+
+</body>
+</html>
