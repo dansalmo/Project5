@@ -8,30 +8,44 @@
       {% include 'flash-message.html' %}
     </div>
     <div class="col-sm-8">
-      <a href= "{{url_for('addItem')}}">Add Item</a>
+      {% if auth %}
+        <a href="{{url_for('addItem')}}">Add Item</a>
+      {% else %}
+        <a href="#">&nbsp</a>
+      {% endif %}
     </div>
   </div>
   <div class="row">
     <div class="col-sm-4">
-      <h2><a href= "{{url_for('showCatalog')}}">Categories</a></h2>
+      <h2><a href="{{url_for('showCatalog')}}">Categories</a></h2>
 
-      {% for category in categories %}
-        <div class="category">
-          <a href= "{{url_for('showCatalog', category=category)}}">{{category}}</a>
-        </div>
-      {% endfor %}
+    {% for c in categories %}
+      <div class="category">
+        <a href="{{url_for('showCatalog', category=c)}}">{{c}}</a>
+      </div>
+    {% endfor %}
 
     </div>
     <div class="col-sm-8">
+
+    {% if category %}
+      <h2>{{category}} Items ({{catalog | length}} total)</h2>
+    {% else %}
       <h2>Latest Items</h2>
-      {% for item in catalog %}
+    {% endif %}
 
-        <div class="item">
-          <a href= "{{url_for('editItem', item_id = item.id)}}">{{item.name}}</a>
-          <span class="category">({{item.category}})</span>
-        </div>
+    {% for item in catalog %}
 
-      {% endfor %}
+      <div class="item">
+        <a href= "{{url_for('showItem', item_id = item.id)}}">{{item.name}}</a>
+      
+      {% if not category %}
+        <span class="category">({{item.category}})</span>
+      {% endif %}
+      
+      </div>
+
+    {% endfor %}
 
     </div>
   </div>

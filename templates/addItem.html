@@ -4,7 +4,7 @@
 	<form id="addItem" action='{{url_for("addItem")}}' method = 'POST'>
 		<input required type = 'text' size='30' name = 'name' placeholder = 'name'> </br>
 		<input type = 'text' size='60' name = 'description' placeholder = 'description'> </br>
-		<input type = 'text' size='10' name = 'image' placeholder = 'image'> </br>
+		<input type = 'text' size='60' name = 'imageURL' placeholder = 'image URL'> </br>
 		<select form="addItem" name="category" required>
 		  <option value="">Category</option>
 		  {% for category in categories %}

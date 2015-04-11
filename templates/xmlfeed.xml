@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog>
+    {% for item in items %}
+    <item>
+        <id>{{item.id}}</id>
+        <category>{{item.category}}</category>
+        <name>{{item.name}}</name>
+        <description>{{item.desciption}}</description>
+        <imageURL>{{item.desciption}}</imageURL>
+    </item>
+    {% endfor %}
+</catalog>

@@ -1,25 +1,21 @@
 {% include 'header.html' %}
 <div class="container">
-	<h2> Edit Item</h2>
-	<form id="editItem" action='{{url_for("editItem", item_id=item.id)}}' method = 'POST'>
-		<input type = 'text' size='30' name = 'name' placeholder = '{{item.name}}'> </br>
-		<input type = 'text' size='60' name = 'description' placeholder = '{{item.description}}'> </br>
-		<input type = 'text' size='10' name = 'image' placeholder = '{{item.image}}'> </br>
-		<select form="editItem" name="category" required>
-		  <option value="{{item.category}}">{{item.category}}</option>
+<h2> Edit Item</h2>
+<form id="editItem" action='{{url_for("editItem", item_id=item.id)}}' method = 'POST'>
+	<input type = 'text' size='30' name = 'name' placeholder = '{{item.name}}'> </br>
+	<input type = 'text' size='60' name = 'description' placeholder = '{{item.description}}'> </br>
+	<input type = 'text' size='60' name = 'imageURL' placeholder = '{{item.imageURL}}'> </br>
+	<select form="editItem" name="category" required>
+	  <option value="{{item.category}}">{{item.category}}</option>
 
-		  {% for category in categories %}
-		  	<option value="{{category}}">{{category}}</option>
-		  {% endfor %}
+	  {% for category in categories %}
+	  	<option value="{{category}}">{{category}}</option>
+	  {% endfor %}
 
-		</select>
-		<br />
-		<input type='submit' value='Change'> <a href= '{{url_for("showCatalog")}}'>Cancel</a>
-	</form>
-	<p>or</p>
-	<a href= '{{url_for("deleteItem", item_id = item.id)}}'>Delete</a>
-
+	</select>
+	<br />
+	<input type='submit' value='Change'> <a href= '{{url_for("showCatalog")}}'>Cancel</a>
+</form>
 </div>
-
 </body>
 </html>
