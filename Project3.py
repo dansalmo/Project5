@@ -10,6 +10,7 @@ from database_setup import Base, Catalog, User
 from flask import session as login_session
 import random, string
 
+# for login decorator
 from functools import wraps
 
 #IMPORTS FOR OAUTH2
@@ -30,23 +31,20 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-#temp global for login
-auth = False
-
 categories = ['Soccer', 'Basketball', 'Baseball', 'Football', 'Tiddlywinks', 'Misc']
 
 # login_required decorator definition
 def login_required(f):
     @wraps(f)
     def dec_fn(*args, **kwargs):
-        if auth:
-            return f(*args, **kwargs)
-        else:
-            next_url = request.url
-            login_url = '{}?next={}'.format(url_for('login'), next_url)
-            flash('You must be logged in to change anything %s' % login_url)
-            print next_url
-            return redirect(login_url)
+		if 'username' in login_session:
+			return f(*args, **kwargs)
+		else:
+			next_url = request.url
+			login_url = '{}?next={}'.format(url_for('login'), next_url)
+			flash('You must be logged in to change anything')
+			print next_url
+			return redirect(login_url)
     return dec_fn
 
 @app.route('/login/')
@@ -63,26 +61,10 @@ def showLogin():
 
 @app.route('/loggedin/')
 def loggedin():
-	global auth
-	auth = True
 	if request.args.get('next'):
 		return redirect(request.args.get('next'))
 	else:
 		return redirect(url_for('showCatalog'))
-
-@app.route('/logout/')
-def logout():
-	global auth
-	auth = False
-	nextURL = request.referrer
-	# change next URL if logout happend on a page that requires login
-	toCheck = ['/add/', '/edit/', '/delete/']
-	if [path for path in toCheck if path in nextURL]:
-		nextURL = nextURL.replace('/add/', '')
-		nextURL = nextURL.replace('/edit/', '/show/')
-		nextURL = nextURL.replace('/delete/', '/show/')
-		
-	return redirect(nextURL)
 
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
@@ -139,7 +121,7 @@ def fbconnect():
   output += '!</h1>'
   output += '<img src="'
   output += login_session['picture']
-  output +=' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+  output +=' " style = "width: 200px; height: 200px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
 
 
   flash ("Now logged in as %s" % login_session['username'])
@@ -152,6 +134,7 @@ def fbdisconnect():
   h = httplib2.Http()
   result = h.request(url, 'DELETE')[1] 
   return "you have been logged out"
+
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
 #Validate state token 
@@ -239,8 +222,8 @@ def gconnect():
   output += '!</h1>'
   output += '<img src="'
   output += login_session['picture']
-  output +=' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-  flash("you are now logged in as %s"%login_session['username'])
+  output +=' " style = "width: 200px; height: 200px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
+  flash("logged in as %s"%login_session['username'])
   print "done!"
   return output
 
@@ -272,7 +255,7 @@ def gdisconnect():
     response = make_response(json.dumps('Current user not connected.'),401)
     response.headers['Content-Type'] = 'application/json'
     return response 
-  access_token = credentials.access_token
+  access_token = credentials #.access_token
   url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
   h = httplib2.Http()
   result = h.request(url, 'GET')[0]
@@ -281,6 +264,36 @@ def gdisconnect():
     response = make_response(json.dumps('Failed to revoke token for given user.', 400))
     response.headers['Content-Type'] = 'application/json'
     return response
+
+#Disconnect based on provider
+@app.route('/disconnect')
+def disconnect():
+  nextURL = request.referrer
+  # change next URL if logout happend on a page that requires login
+  toCheck = ['/add/', '/edit/', '/delete/']
+  if [path for path in toCheck if path in nextURL]:
+    nextURL = nextURL.replace('/add/', '')
+    nextURL = nextURL.replace('/edit/', '/show/')
+    nextURL = nextURL.replace('/delete/', '/show/')
+
+  if 'provider' in login_session:
+    if login_session['provider'] == 'google':
+      gdisconnect()
+      del login_session['gplus_id']
+      del login_session['credentials']
+    if login_session['provider'] == 'facebook':
+      fbdisconnect()
+      del login_session['facebook_id']
+    del login_session['username']
+    del login_session['email']
+    del login_session['picture']
+    del login_session['user_id']
+    del login_session['provider']
+    flash("You have been logged out.")
+    return redirect(nextURL)
+  else:
+    flash("You were not logged in")
+    return redirect(nextURL)
 
   #API end points
 @app.route('/catalog.json')
@@ -303,70 +316,85 @@ def catalogXML():
 @app.route('/catalog/')
 @app.route('/catalog/<string:category>/')
 def showCatalog(category=None):
-	'''This page will show my catalog items'''
-	if category:
-		catalog = session.query(Catalog)\
-			.filter_by(category=category)\
-			.all()
-	else:
-		catalog = session.query(Catalog)\
-			.order_by(Catalog.id.desc())\
-			.limit(10)\
-			.all()
-	return render_template('catalog.html', catalog=catalog, categories=categories, category=category, auth=auth)
+  '''This page will show my catalog items'''
+  if category:
+    catalog = session.query(Catalog)\
+      .filter_by(category=category)\
+      .all()
+  else:
+    catalog = session.query(Catalog)\
+      .order_by(Catalog.id.desc())\
+      .limit(10)\
+      .all()
+  auth = 'username' in login_session
+  user = login_session.get('username')
+  return render_template('catalog.html', catalog=catalog, categories=categories, category=category, auth=auth, user=user)
 
 
 @app.route('/catalog/add/', methods=['GET','POST'])
 @login_required
 def addItem():
-	'''This page will add a new item to the catalog'''
-	if request.method == 'POST':
-		newItem = Catalog(
-					name = request.form['name'], 
-					description = request.form['description'], 
-					category = request.form['category'], 
-					)
-		session.add(newItem)
-		session.commit()
-		flash('{} was successfully added to the catalog'.format(request.form['name']))
-		return redirect(url_for('showCatalog'))
-	else:
-		return render_template('addItem.html', categories=categories, auth=auth)
+  '''This page will add a new item to the catalog'''
+  if request.method == 'POST':
+    newItem = Catalog(
+    			name = request.form['name'], 
+    			description = request.form['description'],
+          imageURL =  request.form['imageURL'],
+    			category = request.form['category'],
+    			user_id=login_session['user_id'] 
+    			)
+    session.add(newItem)
+    session.commit()
+    flash('{} was successfully added to the catalog'.format(request.form['name']))
+    return redirect(url_for('showCatalog'))
+  else:
+    auth = 'username' in login_session
+    return render_template('addItem.html', categories=categories, auth=auth)
 
 @app.route('/catalog/<int:item_id>/show/', methods=['GET','POST'])
 def showItem(item_id):
-	'''This page will show an item from the catalog'''
-	item = session.query(Catalog).filter_by(id = item_id).one()
-	return render_template('showItem.html', item=item, auth=auth, next=request.url)
+  '''This page will show an item from the catalog'''
+  item = session.query(Catalog).filter_by(id = item_id).one()
+  user = login_session.get('username')
+  auth = 'username' in login_session
+  return render_template('showItem.html', item=item, auth=auth, user=user, next=request.url)
 
 @app.route('/catalog/<int:item_id>/edit/', methods=['GET','POST'])
 @login_required
 def editItem(item_id):
-	'''This page will edit an item in the catalog'''
-	item = session.query(Catalog).filter_by(id = item_id).one()
-	if request.method == 'POST':
-		#update only fields that have new values
-		for field in request.form:
-			if request.form[field]:
-				setattr(item, field, request.form[field])
-		session.commit()
-		flash('{} was successfully changed'.format(request.form['name']))
-		return redirect(url_for('showCatalog'))
-	else:
-		return render_template('editItem.html', categories=categories, item=item, auth=auth)
+  '''This page will edit an item in the catalog'''
+  item = session.query(Catalog).filter_by(id = item_id).one()
+  auth = 'username' in login_session
+  if item.user_id != login_session['user_id']:
+    flash('You are not authorized to edit this item')
+    return render_template('showItem.html', categories=categories, item=item, auth=auth)
+  if request.method == 'POST':
+    #update only fields that have new values
+    for field in request.form:
+      if request.form[field]:
+        setattr(item, field, request.form[field])
+        session.commit()
+    flash('{} was successfully changed'.format(item.name))
+    return redirect(url_for('showCatalog'))
+  else:
+    return render_template('editItem.html', categories=categories, item=item, auth=auth)
 
 @app.route('/catalog/<int:item_id>/delete/', methods=['GET','POST'])
 @login_required
 def deleteItem(item_id):
-	'''This page will delete an item from the catalog'''
-	item = session.query(Catalog).filter_by(id = item_id).one()
-	if request.method == 'POST':
-		session.delete(item)
-		session.commit()
-		flash('{} was deleted'.format(item.name))
-		return redirect(url_for('showCatalog'))
-	else:
-		return render_template('deleteItem.html', item=item, auth=auth)
+  '''This page will delete an item from the catalog'''
+  item = session.query(Catalog).filter_by(id = item_id).one()
+  auth = 'username' in login_session
+  if item.user_id != login_session['user_id']:
+    flash('You are not authorized to delete this item')
+    return render_template('showItem.html', categories=categories, item=item, auth=auth)
+  if request.method == 'POST':
+    session.delete(item)
+    session.commit()
+    flash('{} was deleted'.format(item.name))
+    return redirect(url_for('showCatalog'))
+  else:
+    return render_template('deleteItem.html', item=item, auth=auth)
 
 if __name__ == '__main__':
 	app.debug = True

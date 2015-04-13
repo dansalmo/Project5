@@ -1,11 +1,11 @@
+{% extends "main.html" %}
+{% block content %}
 {% include 'header.html' %}
-<div class="container">
+{% include 'flash-message.html' %}
 	<form action= "{{url_for('deleteItem', item_id = item.id)}}" method = 'POST'>
 		</br>
 		<p>Are you sure you want to delete {{item.name}}?</p>
 		<input type='submit' value='Delete'>
 	</form>
 	<a href= "{{url_for('showCatalog')}}">Cancel</a>
-</div>
-</body>
-</html>
+{% endblock %}

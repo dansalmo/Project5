@@ -1,5 +1,7 @@
+{% extends "main.html" %}
+{% block content %}
 {% include 'header.html' %}
-<div class="container">
+{% include 'flash-message.html' %}	
 	<h2> Add New Item</h2>
 	<form id="addItem" action='{{url_for("addItem")}}' method = 'POST'>
 		<input required type = 'text' size='30' name = 'name' placeholder = 'name'> </br>
@@ -14,7 +16,4 @@
 		<br />
 		<input type='submit' value='Add'> <a href= '{{url_for("showCatalog")}}'>Cancel</a>
 	</form>
-</div>
-
-</body>
-</html>
+{% endblock %}

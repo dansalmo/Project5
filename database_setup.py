@@ -23,6 +23,8 @@ class Catalog(Base):
     name = Column(String(60), nullable=False)
     description = Column(String(250))
     imageURL = Column(String(500))
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
  
     @property
     def serialize(self):
@@ -35,15 +37,7 @@ class Catalog(Base):
            'imageURL':      self.imageURL
        }
 
-    @property
-    def serializeXML(self):
-       '''returns data object in JSON format for menu API end points''' 
-       import xml.etree.ElementTree as ET
-       root = ET.element('root')  # name the root whatever you want
-       # add your data to the root node in the format you want
-       return ET.dump(root)
-
 engine = create_engine('sqlite:///catalog.db')
- 
+
 
 Base.metadata.create_all(engine)
