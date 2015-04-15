@@ -1,12 +1,17 @@
-This app has been registered with google (https://console.developers.google.com) 
+This app must be registered with google (https://console.developers.google.com) 
 and facebook (https://developers.facebook.com/).
 
-This app is meant to run on a vagrant virtual machine from Udacity.
+Beyond a standard Python 2.7.x installation you will need to install the following:
 
-type:
+sudo pip install flask
+sudo pip install sqlalchemy
+sudo pip install requests
+sudo pip install httplib2
+
+If you are using vagrant type:
 vagrant up
 vagrant ssh
-cd /vagrant/catalog
+cd /vagrant/catalog #or whatever directory the project is in
 
 python database_setup.py #to setup the database if needed
 python Project3.py #to run the server

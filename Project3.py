@@ -1,4 +1,4 @@
-from flask import Flask, flash, render_template, request, redirect, url_for, jsonify
+from flask import Flask, flash, render_template, request, redirect, url_for, jsonify, abort
 app = Flask(__name__)
 app.secret_key = 'something_nobody_else_knows_slndv84#4'
 
@@ -33,6 +33,21 @@ session = DBSession()
 
 categories = ['Soccer', 'Basketball', 'Baseball', 'Football', 'Tiddlywinks', 'Misc']
 
+#CSRF Protection - see http://flask.pocoo.org/snippets/3/
+@app.before_request
+def csrf_protect():
+    if request.method == "POST":
+        token = login_session.pop('_csrf_token', None)
+        if not token or token != request.form.get('_csrf_token'):
+            abort(403)
+
+def generate_csrf_token():
+    if '_csrf_token' not in login_session:
+        login_session['_csrf_token'] = login_session['state']
+    return login_session['_csrf_token']
+
+app.jinja_env.globals['csrf_token'] = generate_csrf_token
+
 # login_required decorator definition
 def login_required(f):
     @wraps(f)
@@ -47,6 +62,26 @@ def login_required(f):
 			return redirect(login_url)
     return dec_fn
 
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+  '''Upload handler for images'''
+  if request.method == 'POST' and 'photo' in request.files:
+    filename = photos.save(request.files['photo'])
+    rec = Photo(filename=filename, user=g.user.id)
+    rec.store()
+    flash("Photo saved.")
+    return redirect(url_for('show', id=rec.id))
+  return render_template('upload.html')
+
+@app.route('/photo/<id>')
+def show(id):
+  '''handler for accessing uploaded images'''
+  photo = Photo.load(id)
+  if photo is None:
+    abort(404)
+  url = photos.url(photo.filename)
+  return render_template('show.html', url=url, photo=photo)
+
 @app.route('/login/')
 def login():
 	'''interstitial login page'''
@@ -54,20 +89,17 @@ def login():
 	login_session['state'] = state
 	return render_template('login.html', next=request.referrer, STATE=login_session['state'])
 
-#Create anti-forgery state token
-@app.route('/login')
-def showLogin():
-  return "The current session state is %s" % login_session['state']
-
 @app.route('/loggedin/')
 def loggedin():
-	if request.args.get('next'):
-		return redirect(request.args.get('next'))
-	else:
-		return redirect(url_for('showCatalog'))
+  """Redirect after login if needed""" 
+  if request.args.get('next'):
+    return redirect(request.args.get('next'))
+  else:
+    return redirect(url_for('showCatalog'))
 
 @app.route('/fbconnect', methods=['POST'])
 def fbconnect():
+  """Login using Facebook""" 
   if request.args.get('state') != login_session['state']:
     response = make_response(json.dumps('Invalid state parameter.'), 401)
     response.headers['Content-Type'] = 'application/json'
@@ -76,7 +108,7 @@ def fbconnect():
   print "access token received %s "% access_token
 
   #Exchange client token for long-lived server-side token
- ## GET /oauth/access_token?grant_type=fb_exchange_token&client_id={app-id}&client_secret={app-secret}&fb_exchange_token={short-lived-token} 
+  ## GET /oauth/access_token?grant_type=fb_exchange_token&client_id={app-id}&client_secret={app-secret}&fb_exchange_token={short-lived-token} 
   app_id = json.loads(open('fb_client_secrets.json', 'r').read())['web']['app_id']
   app_secret = json.loads(open('fb_client_secrets.json', 'r').read())['web']['app_secret']
   url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id,app_secret,access_token)
@@ -129,6 +161,7 @@ def fbconnect():
 
 @app.route('/fbdisconnect')
 def fbdisconnect():
+  """Logout of Facebook session""" 
   facebook_id = login_session['facebook_id']
   url = 'https://graph.facebook.com/%s/permissions' % facebook_id
   h = httplib2.Http()
@@ -137,6 +170,7 @@ def fbdisconnect():
 
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+  """Login using Google+""" 
 #Validate state token 
   if request.args.get('state') != login_session['state']:
     response = make_response(json.dumps('Invalid state parameter.'), 401)
@@ -246,9 +280,9 @@ def getUserID(email):
   except:
       return None
 
-#DISCONNECT - Revoke a current user's token and reset their login_session
 @app.route('/gdisconnect')
 def gdisconnect():
+  """Logout using Google+. Revoke a current user's token and reset their login_session""" 
   #Only disconnect a connected user.
   credentials = login_session.get('credentials')
   if credentials is None:
@@ -265,9 +299,9 @@ def gdisconnect():
     response.headers['Content-Type'] = 'application/json'
     return response
 
-#Disconnect based on provider
 @app.route('/disconnect')
 def disconnect():
+  """Disconnect based on provider.""" 
   nextURL = request.referrer
   # change next URL if logout happend on a page that requires login
   toCheck = ['/add/', '/edit/', '/delete/']

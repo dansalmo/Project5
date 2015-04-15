@@ -4,6 +4,7 @@
 {% include 'flash-message.html' %}	
 <h2> Edit Item</h2>
 <form id="editItem" action='{{url_for("editItem", item_id=item.id)}}' method = 'POST'>
+	<input name=_csrf_token type=hidden value="{{ csrf_token() }}">
 	<input type = 'text' size='30' name = 'name' placeholder = '{{item.name}}'> </br>
 	<input type = 'text' size='60' name = 'description' placeholder = '{{item.description}}'> </br>
 	<input type = 'text' size='60' name = 'imageURL' placeholder = '{{item.imageURL}}'> </br>

@@ -4,6 +4,7 @@
 {% include 'flash-message.html' %}	
 	<h2> Add New Item</h2>
 	<form id="addItem" action='{{url_for("addItem")}}' method = 'POST'>
+		<input name=_csrf_token type=hidden value="{{ csrf_token() }}">
 		<input required type = 'text' size='30' name = 'name' placeholder = 'name'> </br>
 		<input type = 'text' size='60' name = 'description' placeholder = 'description'> </br>
 		<input type = 'text' size='60' name = 'imageURL' placeholder = 'image URL'> </br>
