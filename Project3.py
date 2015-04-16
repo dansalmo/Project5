@@ -36,31 +36,32 @@ categories = ['Soccer', 'Basketball', 'Baseball', 'Football', 'Tiddlywinks', 'Mi
 #CSRF Protection - see http://flask.pocoo.org/snippets/3/
 @app.before_request
 def csrf_protect():
-    if request.method == "POST":
-        token = login_session.pop('_csrf_token', None)
-        if not token or token != request.form.get('_csrf_token'):
-            abort(403)
+  if request.method == "POST":
+    token = login_session.pop('_csrf_token', None)
+    if (not str(request.url_rule) in ['/fbconnect','/gconnect'] and 
+        not token or token != request.form.get('_csrf_token')):
+      abort(403)
 
 def generate_csrf_token():
-    if '_csrf_token' not in login_session:
-        login_session['_csrf_token'] = login_session['state']
-    return login_session['_csrf_token']
+  if '_csrf_token' not in login_session:
+    login_session['_csrf_token'] = login_session['state']
+  return login_session['_csrf_token']
 
 app.jinja_env.globals['csrf_token'] = generate_csrf_token
 
 # login_required decorator definition
 def login_required(f):
-    @wraps(f)
-    def dec_fn(*args, **kwargs):
-		if 'username' in login_session:
-			return f(*args, **kwargs)
-		else:
-			next_url = request.url
-			login_url = '{}?next={}'.format(url_for('login'), next_url)
-			flash('You must be logged in to change anything')
-			print next_url
-			return redirect(login_url)
-    return dec_fn
+  @wraps(f)
+  def dec_fn(*args, **kwargs):
+    if 'username' in login_session:
+      return f(*args, **kwargs)
+    else:
+      next_url = request.url
+      login_url = '{}?next={}'.format(url_for('login'), next_url)
+      flash('You must be logged in to change anything')
+      print next_url
+    return redirect(login_url)
+  return dec_fn
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
@@ -84,10 +85,10 @@ def show(id):
 
 @app.route('/login/')
 def login():
-	'''interstitial login page'''
-	state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
-	login_session['state'] = state
-	return render_template('login.html', next=request.referrer, STATE=login_session['state'])
+  '''interstitial login page'''
+  state = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
+  login_session['state'] = state
+  return render_template('login.html', next=request.referrer, STATE=login_session['state'])
 
 @app.route('/loggedin/')
 def loggedin():
@@ -332,18 +333,18 @@ def disconnect():
   #API end points
 @app.route('/catalog.json')
 def catalogJSON():
-	catalog = session.query(Catalog).all()
-	return jsonify(Catalog=[i.serialize for i in catalog])
+  catalog = session.query(Catalog).all()
+  return jsonify(Catalog=[i.serialize for i in catalog])
 
 @app.route('/catalog.xml')
 def catalogXML():
-	"""Generate xmlfeed - Makes a list of items from catalog."""
-	items = session.query(Catalog).all()
-	sitemap_xml = render_template('xmlfeed.xml', items=items)
-	response = make_response(sitemap_xml)
-	response.headers["Content-Type"] = "application/xml"
-	print ', '.join("%s" % vars(i) for i in items)   
-	return response
+  """Generate xmlfeed - Makes a list of items from catalog."""
+  items = session.query(Catalog).all()
+  sitemap_xml = render_template('xmlfeed.xml', items=items)
+  response = make_response(sitemap_xml)
+  response.headers["Content-Type"] = "application/xml"
+  print ', '.join("%s" % vars(i) for i in items)   
+  return response
 
 #HTML end points
 @app.route('/')
@@ -371,12 +372,12 @@ def addItem():
   '''This page will add a new item to the catalog'''
   if request.method == 'POST':
     newItem = Catalog(
-    			name = request.form['name'], 
-    			description = request.form['description'],
+          name = request.form['name'], 
+          description = request.form['description'],
           imageURL =  request.form['imageURL'],
-    			category = request.form['category'],
-    			user_id=login_session['user_id'] 
-    			)
+          category = request.form['category'],
+          user_id=login_session['user_id'] 
+          )
     session.add(newItem)
     session.commit()
     flash('{} was successfully added to the catalog'.format(request.form['name']))
@@ -431,5 +432,5 @@ def deleteItem(item_id):
     return render_template('deleteItem.html', item=item, auth=auth)
 
 if __name__ == '__main__':
-	app.debug = True
-	app.run(host = '0.0.0.0', port = 5000)
+  app.debug = True
+  app.run(host = '0.0.0.0', port = 5000)

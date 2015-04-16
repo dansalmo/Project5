@@ -8,6 +8,7 @@ Beyond a standard Python 2.7.x installation you will need to install the followi
     $ sudo pip install sqlalchemy
     $ sudo pip install requests
     $ sudo pip install httplib2
+    $ sudo pip install oauth2client
 
 If you are using vagrant type:
     $ vagrant up`
