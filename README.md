@@ -11,6 +11,7 @@ Beyond a standard Python 2.7.x installation you will need to install the followi
     $ sudo pip install oauth2client
 
 If you are using vagrant type:
+
     $ vagrant up`
     $ vagrant ssh`
     $ cd /vagrant/catalog  #or whatever directory the project is in
