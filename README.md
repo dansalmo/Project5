@@ -16,6 +16,8 @@ If you are using vagrant type:
     $ vagrant ssh`
     $ cd /vagrant/catalog  #or whatever directory the project is in
 
+To run the server:
+
     $ python database_setup.py #to setup the database if needed
     $ python Project3.py #to run the server
 
