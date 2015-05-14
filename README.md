@@ -5,14 +5,9 @@ password: a3D@bc
 This app is already [registered with google] (https://console.developers.google.com) 
 [and facebook] (https://developers.facebook.com/).
 
-Beyond a standard Python 2.7.x installation you will need to install the following:
+Beyond a standard Python 2.7.x installation the following packages have been installed:
 
-    $ sudo apt-get install python-pip
-    $ sudo pip install flask
-    $ sudo pip install sqlalchemy
-    $ sudo pip install requests
-    $ sudo pip install httplib2
-    $ sudo pip install oauth2client
+    python-pip, flask, sqlalchemy, requests, httplib2, oauth2client
 
 To run the server:
 
