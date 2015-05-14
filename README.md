@@ -19,6 +19,5 @@ To run the server:
     $ python database_setup.py #to setup the database if needed
     $ python Project5.py #to run the server
 
-####point your browser to http://52.25.22.130/catalog/
-
+point your browser to http://52.25.22.130/catalog/
 
