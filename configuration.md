@@ -1,6 +1,6 @@
 To launch a new remote Virtual Machine to my Udacity account:
 
-1. Download [this private key](https://www.udacity.com/f200d503-b6f3-415a-aeb6-a9f5d839e528)
+1. Download the private key.
 
 1. Move the private key file into the folder ~/.ssh (where ~ is your environment's home directory). So if you downloaded the file to the Downloads folder, just execute the following command in your terminal
 
