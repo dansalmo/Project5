@@ -1,6 +1,6 @@
 To launch a new remote Virtual Machine to my Udacity account:
 
-1. Download the private key.
+1. Download the private key to your own machine.
 
 1. Move the private key file into the folder ~/.ssh (where ~ is your environment's home directory). So if you downloaded the file to the Downloads folder, just execute the following command in your terminal
 
@@ -22,11 +22,12 @@ To launch a new remote Virtual Machine to my Udacity account:
         #edit the sudoers file with this command
         $ sudo /usr/sbin/visudo
         
-        # The user privilege specification should ook like this:
-        root    ALL=(ALL:ALL) ALL 
-        grader    ALL=(ALL:ALL) ALL
-        
-        # type :wq to quit and save from the vim editor
+    * The user privilege specification should look like this:
+    
+	        root    ALL=(ALL:ALL) ALL 
+	        grader  ALL=(ALL:ALL) ALL
+	        
+	        Note: Type :wq to quit and save from the vim editor
 
 1. Copy the RSA key to the grader user folder and set ownership
 
@@ -89,7 +90,18 @@ To launch a new remote Virtual Machine to my Udacity account:
 
             $ sudo nano -c /etc/ssh/sshd_config
 
-            #exit and then login as grader using port 2200
+	* Restart the SSH daemon:
+			
+			$ /etc/init.d/sshd restart
+	
+	* You should see that it was stopped and started successfully:
+
+			Stopping sshd:              [  OK  ]
+			Starting sshd:              [  OK  ]
+
+
+     * Exit and then login as grader using port 2200
+ 
             $ exit 
             $ ssh -p 2200 -i ~/.ssh/udacity_key.rsa grader@52.25.22.130
 
@@ -99,6 +111,18 @@ To launch a new remote Virtual Machine to my Udacity account:
     	$ sudo ufw allow 80/tcp
     	$ sudo ufw allow 123/tcp
 
+1. Install and configure Fail2Ban
+
+		$ sudo apt-get update
+		$ sudo apt-get install fail2ban
+		
+	* make a copy of `jail.conf` called `jail.local` then open it in an editor
+	
+			$ sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+			$ sudo nano /etc/fail2ban/jail.local
+	
+	* Edit the `jail.local` file as follows:
+
 1. Configure the local timezone to UTC
 
 		$ sudo dpkg-reconfigure tzdata
@@ -106,11 +130,47 @@ To launch a new remote Virtual Machine to my Udacity account:
 	* Use the arrow keys to choose the bottom option `None of the Above`
 	* Press the `u` key until the `UTC` option is selected and press `Return`
 	
+1. All the required packages for the Item Catalog web application
+
+		$ sudo pip install flask
+		$ sudo pip install sqlalchemy
+		$ sudo pip install requests
+		$ sudo pip install httplib2
+		$ sudo pip install oauth2client
+
+1. Install git and clone the project repo
+
+		$ sudo apt-get install git
+		$ cd ~
+		$ sudo git clone https://github.com/dansalmo/Project5.git
+
+
 1. Install and configure Apache to serve a Python mod_wsgi application
 
-1. Install and configure PostgreSQL:
+		$ sudo apt-get install python-pip apache2 libapache2-mod-wsgi
+		$ sudo service apache2 restart
+		$ sudo mkdir /var/www/Project5
+		$ sudo cp ~/Project5/myApp.wsgi /var/www/Project5
+		$ sudo cp ~/Project5/Project5.conf /etc/apache2/sites-available
+		$ sudo a2ensite Project5
+		$ sudo service apache2 reload
+	
+1. Install and configure PostgreSQL:2. 
 
 	* Do not allow remote connections
 	* Create a new user named catalog that has limited permissions to your catalog application database
+
+			$ sudo apt-get install postgresql postgresql-contrib
+			$ sudo apt-get install python-psycopg2
+			$ sudo apt-get install libpq-dev
+
+	* Configure a postgres user named catalog
+
+			$ sudo su - postgres
+			$ psql
+			postgres=# CREATE USER catalog WITH PASSWORD 'secure password';
+			postgres=# GRANT SELECT, UPDATE, INSERT ON catalog TO catalog;
+			postgres=# \q
+			$ exit
 
 Install git, clone and setup your Catalog App project (from your GitHub repository from earlier in the Nanodegree program) so that it functions correctly when visiting your server’s IP address in a browser. Remember to set this up appropriately so that your .git directory is not publicly accessible via a browser!

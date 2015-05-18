@@ -37,7 +37,7 @@ class Catalog(Base):
            'imageURL':      self.imageURL
        }
 
-engine = create_engine('sqlite:///catalog.db')
-
+#engine = create_engine('sqlite:///catalog.db')
+engine = create_engine('postgresql+psycopg2://catalog:hu8jmn3@localhost/catalog')
 
 Base.metadata.create_all(engine)
