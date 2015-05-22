@@ -21,8 +21,10 @@ import json
 from flask import make_response
 import requests
 
+APP_PATH = '/var/www/Project5/'
+
 CLIENT_ID = json.loads(
-  open('client_secrets.json', 'r').read())['web']['client_id']
+  open(APP_PATH + 'client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME= "Project5"
 
 engine = create_engine('postgresql+psycopg2://catalog:hu8jmn3@localhost/catalog')
@@ -107,12 +109,12 @@ def fbconnect():
     response.headers['Content-Type'] = 'application/json'
     return response
   access_token = request.data
-  print "access token received %s "% access_token
+  #print "access token received %s "% access_token
 
   #Exchange client token for long-lived server-side token
   ## GET /oauth/access_token?grant_type=fb_exchange_token&client_id={app-id}&client_secret={app-secret}&fb_exchange_token={short-lived-token} 
-  app_id = json.loads(open('fb_client_secrets.json', 'r').read())['web']['app_id']
-  app_secret = json.loads(open('fb_client_secrets.json', 'r').read())['web']['app_secret']
+  app_id = json.loads(open(APP_PATH + 'fb_client_secrets.json', 'r').read())['web']['app_id']
+  app_secret = json.loads(open(APP_PATH + 'fb_client_secrets.json', 'r').read())['web']['app_secret']
   url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s' % (app_id,app_secret,access_token)
   h = httplib2.Http()
   result = h.request(url, 'GET')[1]
