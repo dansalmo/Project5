@@ -22,7 +22,7 @@ from flask import make_response
 import requests
 
 CLIENT_ID = json.loads(
-  open('client_secrets.json', 'r').read())['web']['client_id']
+  open('/var/www/Project5/client_secrets.json', 'r').read())['web']['client_id']
 APPLICATION_NAME= "Project5"
 
 engine = create_engine('postgresql+psycopg2://catalog:hu8jmn3@localhost/catalog')
