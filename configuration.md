@@ -152,6 +152,7 @@ To launch a new remote Virtual Machine to my Udacity account:
 		$ sudo mkdir /var/www/Project5
 		$ sudo cp ~/Project5/myApp.wsgi /var/www/Project5
 		$ sudo cp ~/Project5/Project5.conf /etc/apache2/sites-available
+		$ sudo a2enmod wsgi 
 		$ sudo a2ensite Project5
 		$ sudo service apache2 reload
 	

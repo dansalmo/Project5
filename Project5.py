@@ -23,9 +23,10 @@ import requests
 
 CLIENT_ID = json.loads(
   open('client_secrets.json', 'r').read())['web']['client_id']
-APPLICATION_NAME= "Project3"
+APPLICATION_NAME= "Project5"
 
-engine = create_engine('sqlite:///catalog.db')
+engine = create_engine('postgresql+psycopg2://catalog:hu8jmn3@localhost/catalog')
+
 Base.metadata.bind = engine
 
 DBSession = sessionmaker(bind=engine)
