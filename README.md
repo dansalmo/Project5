@@ -1,20 +1,14 @@
-52.25.22.130:80
+52.25.22.130     #the subumission instructions said to put the IP address in the README
 user: grader
-password: a3D@bc
+password: followTableQuietly
 
 This app is already [registered with google] (https://console.developers.google.com) 
 [and facebook] (https://developers.facebook.com/).
 
-Beyond a standard Python 2.7.x installation the following packages have been installed:
+This app only works with [facebook] (https://developers.facebook.com/) login
+It does not work with [google] (https://console.developers.google.com) login due to the lack of known domain name for server.
 
-    python-pip, flask, sqlalchemy, requests, httplib2, oauth2client
+The configuration steps taken for this server can be found in `configuration.md`
 
-To run the server:
-
-	login as user: grader
-
-    $ sudo python database_setup.py #to setup the database if needed
-    $ sudo python Project5.py #to run the server
-
-point your browser to http://52.25.22.130/catalog/
+Point your browser to http://52.25.22.130 to see the web app.
 

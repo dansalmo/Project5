@@ -116,12 +116,10 @@ To launch a new remote Virtual Machine to my Udacity account:
 		$ sudo apt-get update
 		$ sudo apt-get install fail2ban
 		
-	* make a copy of `jail.conf` called `jail.local` then open it in an editor
+	* make a copy of `jail.conf` called `jail.local` then restart
 	
 			$ sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
-			$ sudo nano /etc/fail2ban/jail.local
-	
-	* Edit the `jail.local` file as follows:
+			$ sudo /etc/init.d/fail2ban restart
 
 1. Configure the local timezone to UTC
 
@@ -130,7 +128,7 @@ To launch a new remote Virtual Machine to my Udacity account:
 	* Use the arrow keys to choose the bottom option `None of the Above`
 	* Press the `u` key until the `UTC` option is selected and press `Return`
 	
-1. All the required packages for the Item Catalog web application
+1. Install the required packages for the Item Catalog web application
 
 		$ sudo pip install flask
 		$ sudo pip install sqlalchemy
@@ -138,34 +136,31 @@ To launch a new remote Virtual Machine to my Udacity account:
 		$ sudo pip install httplib2
 		$ sudo pip install oauth2client
 
-1. Install git and clone the project repo
+1. Install git and clone the project repo into `/var/www`
 
 		$ sudo apt-get install git
-		$ cd ~
+		$ sudo cd /var/www
 		$ sudo git clone https://github.com/dansalmo/Project5.git
 
 
 1. Install and configure Apache to serve a Python mod_wsgi application
 
 		$ sudo apt-get install python-pip apache2 libapache2-mod-wsgi
-		$ sudo service apache2 restart
-		$ sudo mkdir /var/www/Project5
-		$ sudo cp ~/Project5/myApp.wsgi /var/www/Project5
 		$ sudo cp ~/Project5/Project5.conf /etc/apache2/sites-available
 		$ sudo a2enmod wsgi 
 		$ sudo a2ensite Project5
-		$ sudo service apache2 reload
+		$ sudo service apache2 restart
 	
-1. Install and configure PostgreSQL:2. 
+1. Install and configure PostgreSQL: 
 
-	* Do not allow remote connections
-	* Create a new user named catalog that has limited permissions to your catalog application database
+	* Do not enable any remote connections
 
 			$ sudo apt-get install postgresql postgresql-contrib
 			$ sudo apt-get install python-psycopg2
 			$ sudo apt-get install libpq-dev
 
-	* Configure a postgres user named catalog
+	* Create a new Postgres user named catalog that has limited permissions to your catalog application database
+
 
 			$ sudo su - postgres
 			$ psql
@@ -173,5 +168,7 @@ To launch a new remote Virtual Machine to my Udacity account:
 			postgres=# GRANT SELECT, UPDATE, INSERT ON catalog TO catalog;
 			postgres=# \q
 			$ exit
+1. Create the catalog database and reload the server
 
-Install git, clone and setup your Catalog App project (from your GitHub repository from earlier in the Nanodegree program) so that it functions correctly when visiting your server’s IP address in a browser. Remember to set this up appropriately so that your .git directory is not publicly accessible via a browser!
+		$ python databasesetup.py
+		$ sudo service apache2 restart
