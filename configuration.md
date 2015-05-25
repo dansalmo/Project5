@@ -8,7 +8,7 @@ To launch a new remote Virtual Machine to my Udacity account:
 
 1. Open your terminal and type:
 
-        $ chmod 600 ~/.ssh/udacity_key.rs
+        $ chmod 600 ~/.ssh/udacity_key.rsa
 
 1. Login to your remote VM.  In your terminal, type i
 
@@ -17,18 +17,8 @@ To launch a new remote Virtual Machine to my Udacity account:
 1. Create a new user named grader with a secure password and give grader the permission to 'sudo'
 
         #follow the prompts, make a note of the password
-        $ adduser grader
+        $ adduser grader sudo
         
-        #edit the sudoers file with this command
-        $ sudo /usr/sbin/visudo
-        
-    * The user privilege specification should look like this:
-    
-	        root    ALL=(ALL:ALL) ALL 
-	        grader  ALL=(ALL:ALL) ALL
-	        
-	        Note: Type :wq to quit and save from the vim editor
-
 1. Copy the RSA key to the grader user folder and set ownership
 
         $ sudo cp /root/.ssh .ssh

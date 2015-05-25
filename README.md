@@ -2,6 +2,8 @@
 
 52.25.22.130
 
+host name: ec2-52-25-22-130.us-west-2.compute.amazonaws.com
+
 user: grader
 
 password: followTableQuietly
